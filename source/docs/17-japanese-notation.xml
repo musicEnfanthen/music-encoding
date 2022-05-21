@@ -1,0 +1,65 @@
+<!--
+© 2017 by the Music Encoding Initiative (MEI) Council.
+  Licensed under the Educational Community License, Version 2.0 (the "License"); you may
+  not use this file except in compliance with the License. You may obtain a copy of the License
+  at http://opensource.org/licenses/ECL-2.0.
+
+  Unless required by applicable law or agreed to in writing, software distributed under the
+  License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+  OF ANY KIND, either express or implied. See the License for the specific language
+  governing permissions and limitations under the License.
+
+  This is a derivative work based on earlier versions of the schema © 2001-2006 Perry Roland
+  and the Rector and Visitors of the University of Virginia; licensed under the Educational
+  Community License version 1.0.
+
+  CONTACT: info@music-encoding.org                        
+                    --><?xml-model href="../validation/mei_odds.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?><?xml-model href="../validation/mei_odds.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?><TEI xmlns:rng="http://relaxng.org/ns/structure/1.0"
+     xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+     xmlns="http://www.tei-c.org/ns/1.0"
+     version="5.0"
+     rend="book"
+     xml:lang="en">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title level="s">The Music Encoding Initiative Guidelines</title>
+            <title level="a">Repertoire: Japanese Traditional Notation</title>
+            <respStmt>
+               <note>The editors listed here are responsible for the contents of this very chapter of the MEI Guidelines.</note>
+            </respStmt>
+         </titleStmt>
+         <publicationStmt>
+            <distributor>Music Encoding Initiative (MEI) Council</distributor>
+            <availability>
+               <p>
+                  <hi>Music Encoding Initiative (MEI)</hi>
+               </p>
+               <p>NOTICE: Copyright (c) 2018 by the Music Encoding Initiative (MEI) Council.</p>
+               <p>Licensed under the Educational Community License, Version 2.0 (the "License"); you may
+                                            not use this file except in compliance with the License. You may obtain a copy of the
+                                            License at <ref target="http://opensource.org/licenses/ECL-2.0">http://opensource.org/licenses/ECL-2.0</ref>.</p>
+               <p>Unless required by applicable law or agreed to in writing, software distributed under
+                                            the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+                                            KIND, either express or implied. See the License for the specific language governing
+                                            permissions and limitations under the License.</p>
+               <p>This is a derivative work based on earlier versions of the schema copyright (c)
+                                            2001-2006 Perry Roland and the Rector and Visitors of the University of Virginia;
+                                            licensed under the Educational Community License version 1.0.</p>
+               <p>CONTACT: contact@music-encoding.org </p>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p></p>
+         </sourceDesc>
+      </fileDesc>
+   </teiHeader>
+   <text>
+      <body>
+         <div xml:id="japanese_notation.xml" type="div1">
+            <head>Repertoire: Japanese Traditional Notation</head>
+            <p>This chapter describes the elements, model classes, and attribute classes that are part of the MEI.japanese.notation module.</p>
+         </div>
+      </body>
+   </text>
+</TEI>
