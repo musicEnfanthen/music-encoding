@@ -119,6 +119,12 @@
          <xi:include href="docs/12-facsimilesrecordings.xml" xpointer="facsimilesrecordings"/>
          <xi:include href="docs/13-linkingdata.xml" xpointer="linkingdata"/>
          <xi:include href="docs/14-integration.xml" xpointer="integration"/>
+         <xi:include href="docs/15-armenian-neumes.xml" xpointer="armenian_neumes"/>
+         <xi:include href="docs/16-byzantine-neumes.xml" xpointer="byzantine_neumes"/>
+         <xi:include href="docs/17-japanese-notation.xml" xpointer="japanese_notation"/>
+         <xi:include href="docs/18-cantigas.xml" xpointer="cantigas"/>
+         <xi:include href="docs/19-electronic-music.xml" xpointer="electronic-music"/>
+         <xi:include href="docs/20-watermarks.xml" xpointer="watermarks"/>
       </body>
       <back>
          <div>

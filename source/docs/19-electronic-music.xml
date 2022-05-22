@@ -56,7 +56,7 @@
    </teiHeader>
    <text>
       <body>
-         <div xml:id="electronic-music.xml" type="div1">
+         <div xml:id="electronic-music" type="div1">
             <head>Repertoire: Electro-Acoustic and Electronic Music</head>
             <p>This chapter describes the elements, model classes, and attribute classes that are part of the MEI.electronics module.</p>
          </div>

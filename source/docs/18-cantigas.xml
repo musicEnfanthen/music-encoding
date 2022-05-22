@@ -56,7 +56,7 @@
    </teiHeader>
    <text>
       <body>
-         <div xml:id="cantigas.xml" type="div1">
+         <div xml:id="cantigas" type="div1">
             <head>Repertoire: Castilian and Galician-Portuguese Cantigas</head>
             <p>This chapter describes the elements, model classes, and attribute classes that are part of the MEI.cantigas module.</p>
          </div>

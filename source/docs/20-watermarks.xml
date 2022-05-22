@@ -24,7 +24,7 @@
       <fileDesc>
          <titleStmt>
             <title level="s">The Music Encoding Initiative Guidelines</title>
-            <title level="a">Repertoire: Japanese Traditional Notation</title>
+            <title level="a">Watermarks</title>
             <respStmt>
                <note>The editors listed here are responsible for the contents of this very chapter of the MEI Guidelines.</note>
             </respStmt>
@@ -56,9 +56,9 @@
    </teiHeader>
    <text>
       <body>
-         <div xml:id="japanese_notation" type="div1">
-            <head>Repertoire: Japanese Traditional Notation</head>
-            <p>This chapter describes the elements, model classes, and attribute classes that are part of the MEI.japanese.notation module.</p>
+         <div xml:id="watermarks" type="div1">
+            <head>Watermarks</head>
+            <p>This chapter describes the elements, model classes, and attribute classes that are part of the MEI.watermarks module.</p>
          </div>
       </body>
    </text>
