@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-model href="../../schemata/mei-all_anyStart.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
-<?xml-model href="../../schemata/mei-all_anyStart.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="../../dist/schemata/mei-all_anyStart.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="../../dist/schemata/mei-all_anyStart.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <music xmlns="http://www.music-encoding.org/ns/mei"
   xmlns:mei="http://www.music-encoding.org/ns/mei" xmlns:xlink="http://www.w3.org/1999/xlink">
     <body>
         <mdiv>
             <score>
-                <scoreDef key.sig="3f" key.pname="c">
+                <scoreDef keysig="3f" key.pname="c">
                     <staffGrp>
                         <staffDef n="2" lines="5" />
                     </staffGrp>
