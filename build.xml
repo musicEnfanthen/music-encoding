@@ -78,6 +78,7 @@
     <property name="xerces.version" value="25.1.0.1"/>
     <property name="xerces.jar.file" value="oxygen-patched-xerces-${xerces.version}.jar"/>
     <property name="oxygen.basic.utilites.jar.file" value="oxygen-basic-utilities-${xerces.version}.jar"/>
+    <property name="update.contributors" value="true"/>
     <condition property="verbose" value="true" else="false">
         <contains string="${sun.java.command}" substring="-v" />
     </condition>
@@ -292,6 +293,7 @@
             <arg value="hash=${hash}"/>
             <arg value="branch=${branch}"/>
             <arg value="basedir=${basedir.cross_platform}"/>
+            <arg value="update-contributors=${update.contributors}"/>
         </java>
         <antcall target="generate-images"/>
         <antcall target="copy-generated-images"/>
