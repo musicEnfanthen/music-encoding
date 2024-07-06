@@ -474,6 +474,7 @@
         <xsl:variable name="contributors">
             <xsl:variable name="raw.contributors" as="node()*">
                 <xsl:if test="$update-contributors">
+                    <xsl:message select="'Updating contributors from GitHub'"/>
                     <xsl:sequence select="tools:retrieveData($docs.repo.contributors)/child::json:array/json:map"/>
                     <xsl:sequence select="tools:retrieveData($spec.repo.contributors)/child::json:array/json:map"/>    
                 </xsl:if>
@@ -518,6 +519,7 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
+        <xsl:message select="'Getting contributors from curated list'"/>
         <xsl:variable name="curated.contributors" select="tools:retrieveData($curated.uri)" as="node()*"/>
         
         <xsl:variable name="merged.contributors" as="node()*">

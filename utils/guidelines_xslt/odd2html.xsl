@@ -132,7 +132,7 @@
     
     <xd:doc>
         <xd:desc>
-            <xd:p>Whether Contributors should be retrieved live from GitHub. Please consider that this may result in excessive API calls.</xd:p>
+            <xd:p>Whether Contributors should be updated live from GitHub. Please consider that this may result in excessive API calls.</xd:p>
         </xd:desc>
     </xd:doc>
     <xsl:param name="update-contributors" select="false()" as="xs:boolean"/>
