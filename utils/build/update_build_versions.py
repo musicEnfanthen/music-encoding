@@ -11,6 +11,7 @@ DOCKER_FILE = 'Dockerfile'
 VERSION_KEYS = [
     'prince.version',
     'saxon.version',
+    'saxon.edition.version',
     'schematron.version',
     'stylesheets.version',
     'verovio.version',
@@ -27,7 +28,7 @@ BUILD_COMMANDLINE_FILE_PATTERNS = {
 
 DOCKER_FILE_PATTERNS = {
     r'ARG PRINCE_VERSION=.*': "ARG PRINCE_VERSION={prince.version}",
-    r'ARG SAXON_VERSION=.*': "ARG SAXON_VERSION={saxon.version}",
+    r'ARG SAXON_VERSION=.*': "ARG SAXON_VERSION={saxon.edition.version}",
     r'ARG SCHEMATRON_VERSION=.*': "ARG SCHEMATRON_VERSION={schematron.version}",
     r'ARG XERCES_VERSION=.*': "ARG XERCES_VERSION={xerces.version}"
 }
