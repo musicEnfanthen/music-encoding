@@ -93,7 +93,7 @@
       <memberOf key="att.intervalHarmonic"/>
     </classes>
   </classSpec>
-  <classSpec ident="att.clef.ges" module="MEI.analytical" type="atts">
+  <classSpec ident="att.clef.anl" module="MEI.analytical" type="atts">
     <desc xml:lang="en">Analytical domain attributes.</desc>
   </classSpec>
   <classSpec ident="att.clefGrp.anl" module="MEI.analytical" type="atts">
