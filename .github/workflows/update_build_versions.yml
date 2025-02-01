@@ -81,7 +81,6 @@ jobs:
 
     - name: Copy Dockerfile to main repository
       run: |
-        ls -R
         touch ${{ env.TEMP_DIR }}/Dockerfile
         cp Dockerfile ${{ env.TEMP_DIR }}/Dockerfile
 
@@ -94,6 +93,10 @@ jobs:
       run: |
         cp ${{ env.TEMP_DIR }}/Dockerfile Dockerfile
     
+    - name: Remove TEMP_DIR from git
+      run: |
+        git rm --cached ${{ env.TEMP_DIR }}
+
     - name: Verify changes in Dockerfile
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
