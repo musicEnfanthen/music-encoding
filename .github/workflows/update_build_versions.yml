@@ -22,15 +22,8 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
 
-    - name: Set up Java
-      uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
     - name: Update versions in BUILD_COMMANDLINE.md
-      run: |
-        ant update-versions-markdown
+      run: docker run --rm -v $(pwd):/opt/docker-mei/music-encoding ghcr.io/music-encoding/docker-mei:latest ant update-versions-markdown -noinput -buildfile music-encoding/build.xml 
 
     - name: Commit and push changes for BUILD_COMMANDLINE.md
       env:
@@ -72,20 +65,13 @@ jobs:
         # Path to a directory in the repository to check out
         path: ${{ env.DOCKER_DIR }}
 
-    - name: Set up Java
-      uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
     - name: Copy Dockerfile to main repository
       run: |
         touch Dockerfile
         cp ${{ env.DOCKER_DIR }}/Dockerfile Dockerfile
 
     - name: Update build versions in Dockerfile
-      run: |
-        ant update-versions-docker
+      run: docker run --rm -v $(pwd):/opt/docker-mei/music-encoding ghcr.io/music-encoding/docker-mei:latest ant update-versions-docker -noinput -buildfile music-encoding/build.xml 
 
     - name: Copy Dockerfile back to docker-mei repository
       run: |
