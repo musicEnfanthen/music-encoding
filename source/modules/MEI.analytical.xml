@@ -156,7 +156,7 @@
   <classSpec ident="att.halfmRpt.anl" module="MEI.analytical" type="atts">
     <desc xml:lang="en">Analytical domain attributes.</desc>
   </classSpec>
-  <classSpec ident="att.harm.anl" module="MEI.analytical" type="atts">
+  <classSpec ident="att.harm.ges" module="MEI.analytical" type="atts">
     <desc xml:lang="en">Analytical domain attributes.</desc>
     <classes>
       <memberOf key="att.intervalHarmonic"/>
