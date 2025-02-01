@@ -118,7 +118,10 @@ jobs:
         commit-message: 'build: update build versions in Dockerfile'
         branch: feature/update-build-versions
         title: 'build: update build versions in Dockerfile'
-        body: 'This PR updates the build versions in the Dockerfile.'
+        body: |
+          This PR updates the build versions in the Dockerfile.
+          
+          Automatically triggered from ${{ env.REPO_OWNER }}/music-encoding via [this PR](${{ github.event.pull_request.html_url }}).
         base: main
 
     - name: Check outputs
@@ -126,3 +129,7 @@ jobs:
       run: |
         echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
         echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+        echo "Pull Request Event - ${{ github.event.pull_request }}"
+        echo "Pull Request Event URL - ${{ github.event.pull_request.html_url }}"
+        echo "Github head ref - ${{ github.head_ref }}"
+
