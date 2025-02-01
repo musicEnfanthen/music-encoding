@@ -63,7 +63,7 @@ jobs:
         repository: ${{ env.REPO_OWNER }}/${{ env.DOCKER_REPO }}
         # Secret for accessing <owner>/<DOCKER_REPO>;
         # cf. explanation in https://github.com/rism-ch/verovio/pull/1751
-        ssh-key: ${{ secrets.GH_ACTIONS_PAT_DOCKER_MEI }}
+        token: ${{ secrets.DOCKER_MEI_PAT }}
         # ref (branch, tag or SHA) to check out
         ref: main
         
