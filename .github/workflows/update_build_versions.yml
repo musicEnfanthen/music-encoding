@@ -81,6 +81,7 @@ jobs:
 
     - name: Copy Dockerfile to main repository
       run: |
+        touch {{ env.TEMP_DIR }}/Dockerfile
         cp Dockerfile {{ env.TEMP_DIR }}/Dockerfile
 
     - name: Update build versions in Dockerfile
