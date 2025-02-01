@@ -537,6 +537,23 @@
         <echo>Comparison done. See ${output.folder}/comparison.html for results.</echo>
     </target>
 
+    <target name="update-versions-markdown" description="Updates version numbers in BUILD_COMMANDLINE.md">
+        <property name="build.commandline.file" value="BUILD_COMMANDLINE.md"/>
+        <replaceregexp file="${build.commandline.file}" match="\|Prince XML\|.*\|" replace="|Prince XML|${prince.version}|" byline="true"/>
+        <replaceregexp file="${build.commandline.file}" match="\|Saxon HE\*\|.*\|" replace="|Saxon HE*|${saxon.version}|" byline="true"/>
+        <replaceregexp file="${build.commandline.file}" match="\|TEI Stylesheets\*\|.*\|" replace="|TEI Stylesheets*|${stylesheets.version}|" byline="true"/>
+        <replaceregexp file="${build.commandline.file}" match="\|Verovio Toolkit\|.*\|" replace="|Verovio Toolkit|${verovio.version}|" byline="true"/>
+        <replaceregexp file="${build.commandline.file}" match="\|Xerces\*\|.*\|" replace="|Xerces*|Synchrosoft patched version ${xerces.version}|" byline="true"/>
+    </target>
+
+    <target name="update-versions-docker" description="Updates version numbers in Dockerfile (from docker-mei)">
+        <property name="docker.file" value="Dockerfile"/>
+        <replaceregexp file="${docker.file}" match="ARG PRINCE_VERSION=.*" replace="ARG PRINCE_VERSION=${prince.version}" byline="true"/>
+        <replaceregexp file="${docker.file}" match="ARG SAXON_VERSION=.*" replace="ARG SAXON_VERSION=${saxon.edition.version}" byline="true"/>
+        <replaceregexp file="${docker.file}" match="ARG SCHEMATRON_VERSION=.*" replace="ARG SCHEMATRON_VERSION=${schematron.version}" byline="true"/>
+        <replaceregexp file="${docker.file}" match="ARG XERCES_VERSION=.*" replace="ARG XERCES_VERSION=${xerces.version}" byline="true"/>
+    </target>
+
     <target name="dist" description="Default main target; equivalent to calling ant without any target. Builds all artifacts, i.e., RNG and compiled ODDs of all customizations, guidelines html and PDF." depends="validate-source">
         <classfileset refid="mei.classpath"/>
         <antcall target="echo-mei"/>
