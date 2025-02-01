@@ -8,7 +8,7 @@ on:
 env:
   REPO_OWNER: musicEnfanthen
   DOCKER_REPO: docker-mei
-  TEMP_DIR: temp
+  DOCKER_DIR: docker
 
 jobs:
   update-build-commandline:
@@ -57,12 +57,11 @@ jobs:
       pull-requests: write
     
     steps:
-    - name: Checkout main repository into TEMP_DIR
+    - name: Checkout main repository
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         ref: ${{ github.head_ref }}
-        # relative path under $GITHUB_WORKSPACE to place the repository
-        path: ${{ env.TEMP_DIR }}
+
 
     - name: Checkout docker-mei repository
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -73,6 +72,8 @@ jobs:
         token: ${{ secrets.DOCKER_MEI_PAT }}
         # ref (branch, tag or SHA) to check out
         ref: main
+        # Path to a directory in the repository to check out
+        path: ${{ env.DOCKER_DIR }}
 
     - name: Set up Python
       uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
@@ -85,28 +86,24 @@ jobs:
 
     - name: Verify workspace structure
       run: |
-        ls -la ${{ env.TEMP_DIR }}
         ls -la
+        ls -la ${{ env.DOCKER_DIR }}
 
     - name: Copy Dockerfile to main repository
       run: |
-        touch ${{ env.TEMP_DIR }}/Dockerfile
-        cp Dockerfile ${{ env.TEMP_DIR }}/Dockerfile
+        touch Dockerfile
+        cp ${{ env.DOCKER_DIR }}Dockerfile Dockerfile
 
     - name: Update build versions in Dockerfile
-      working-directory: ${{ env.TEMP_DIR }}
       run: |
         python utils/build/update_build_versions.py --docker
 
     - name: Copy Dockerfile back to docker-mei repository
       run: |
-        cp ${{ env.TEMP_DIR }}/Dockerfile Dockerfile
-    
-    - name: Remove TEMP_DIR from git
-      run: |
-        git rm --cached ${{ env.TEMP_DIR }}
+        cp Dockerfile ${{ env.DOCKER_DIR }}/Dockerfile
 
     - name: Verify changes in Dockerfile
+      working-directory: ${{ env.DOCKER_DIR }}
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -117,6 +114,7 @@ jobs:
       uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f # v7.0.6
       with:
         token: ${{ secrets.DOCKER_MEI_PAT }}
+        path: ${{ env.DOCKER_DIR }}
         commit-message: 'build: update build versions in Dockerfile'
         branch: feature/update-build-versions
         title: 'build: update build versions in Dockerfile'
