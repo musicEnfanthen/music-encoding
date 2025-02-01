@@ -6,13 +6,13 @@
 
    | Prerequisite | Recommended version |
    |----|----------------|
-   |Java| Java Development Kit (JDK) 17 recommended (at least Java 8 at runtime to support Apache Ant™)|
+   |Java| Java Development Kit (JDK) 17 recommended (at least Java 8 at runtime to support Apache Ant???)|
    |Apache Ant|1.10.14|
    |Verovio Toolkit|4.2.1|
-   |Prince XML|15.3|
+   |Prince XML|15.4|
    |Saxon HE*|12.5|
    |TEI Stylesheets*|7.57.1|
-   |Xerces*|Synchrosoft patched version 26.1.0.1|
+   |Xerces*|Synchrosoft patched version 26.1.0.2|
 
    \* automatically pulled during build execution
 
@@ -20,7 +20,7 @@
 
    * Is Java 8 or above available on your machine?
 
-     Java 8 is the minimum version needed for the build process driven by Apache Ant™ (see below). However, we recommend using JDK 17.
+     Java 8 is the minimum version needed for the build process driven by Apache Ant??? (see below). However, we recommend using JDK 17.
      To check for Java on your machine, run the following command:
 
      ```shell
@@ -35,11 +35,11 @@
      OpenJDK 64-Bit Server VM Temurin-17.0.7+7 (build 17.0.7+7, mixed mode, sharing)
      ```
 
-     If the version number indicated is lower than `8.0.0` or if the command returns an empty string, please update or install Java according to an installation instruction matching your operating system (to be found on the internet). The Java Development Kit we use in our [Docker Container](https://github.com/music-encoding/docker-mei) is Eclipse Temurin™, which is easy to [install](https://adoptium.net/de/installation/) on Linux, macOS or Windows.
+     If the version number indicated is lower than `8.0.0` or if the command returns an empty string, please update or install Java according to an installation instruction matching your operating system (to be found on the internet). The Java Development Kit we use in our [Docker Container](https://github.com/music-encoding/docker-mei) is Eclipse Temurin???, which is easy to [install](https://adoptium.net/de/installation/) on Linux, macOS or Windows.
 
-   * Is Apache Ant™ installed?
+   * Is Apache Ant??? installed?
 
-     [Apache Ant™](https://ant.apache.org/manual/install.html) is a library for building software projects and drives the creation of MEI schemata and guidelines from the ODD source files.
+     [Apache Ant???](https://ant.apache.org/manual/install.html) is a library for building software projects and drives the creation of MEI schemata and guidelines from the ODD source files.
 
      Run the following command to see if it is available on your system:
 
@@ -53,10 +53,10 @@
      Apache Ant(TM) version 1.10.14 compiled on August 16 2023
      ```
 
-     We recommend using the latest stable release of Apache Ant™. If your system has an older version of Apache Ant™ installed you might still give it a try though. If the prompt returns an empty string, please refer to the [Apache Ant™ Installation Instructions](https://ant.apache.org/manual/install.html) or any other applicable installation instruction.
+     We recommend using the latest stable release of Apache Ant???. If your system has an older version of Apache Ant??? installed you might still give it a try though. If the prompt returns an empty string, please refer to the [Apache Ant??? Installation Instructions](https://ant.apache.org/manual/install.html) or any other applicable installation instruction.
 
-      * **macOS or Linux:** e.g. the [Homebrew Package Manager](https://brew.sh/index_de) offers an easy installation method for both a JDK and Apache Ant™.
-      * **Windows:** e.g. the [Chocolatey Package Manager](https://chocolatey.org) can be used to install both a JDK and Apache Ant™.
+      * **macOS or Linux:** e.g. the [Homebrew Package Manager](https://brew.sh/index_de) offers an easy installation method for both a JDK and Apache Ant???.
+      * **Windows:** e.g. the [Chocolatey Package Manager](https://chocolatey.org) can be used to install both a JDK and Apache Ant???.
 
    * Is Verovio installed for generating example images locally?
 
@@ -77,15 +77,15 @@
 
 3. Build MEI artifacts
 
-   * Switch to your clone’s directory:
+   * Switch to your clone???s directory:
 
      ```shell
      cd [YOUR-CLONE-LOCATION]
      ```
 
-   * Call an Apache Ant™ task
+   * Call an Apache Ant??? task
 
-     For building any MEI artifacts you generally call Apache Ant™ by typing `ant` followed by a space and the name of the desired target:
+     For building any MEI artifacts you generally call Apache Ant??? by typing `ant` followed by a space and the name of the desired target:
 
      ```shell
      ant [TASKNAME]
