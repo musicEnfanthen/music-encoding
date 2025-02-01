@@ -61,10 +61,11 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         repository: ${{ env.REPO_OWNER }}/${{ env.DOCKER_REPO }}
-        token: ${{ secrets.GITHUB_TOKEN }}
         # Secret for accessing <owner>/<DOCKER_REPO>;
         # cf. explanation in https://github.com/rism-ch/verovio/pull/1751
         ssh-key: ${{ secrets.GH_ACTIONS_PAT_DOCKER_MEI }}
+        # ref (branch, tag or SHA) to check out
+        ref: main
         
     - name: Checkout main repository into TEMP_DIR
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
