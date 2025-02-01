@@ -92,7 +92,7 @@ jobs:
     - name: Copy Dockerfile to main repository
       run: |
         touch Dockerfile
-        cp ${{ env.DOCKER_DIR }}Dockerfile Dockerfile
+        cp ${{ env.DOCKER_DIR }}/Dockerfile Dockerfile
 
     - name: Update build versions in Dockerfile
       run: |
