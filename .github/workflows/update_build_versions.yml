@@ -81,8 +81,9 @@ jobs:
 
     - name: Copy Dockerfile to main repository
       run: |
-        touch {{ env.TEMP_DIR }}/Dockerfile
-        cp Dockerfile {{ env.TEMP_DIR }}/Dockerfile
+        ls -R
+        touch ${{ env.TEMP_DIR }}/Dockerfile
+        cp Dockerfile ${{ env.TEMP_DIR }}/Dockerfile
 
     - name: Update build versions in Dockerfile
       working-directory: ${{ env.TEMP_DIR }}
@@ -91,7 +92,7 @@ jobs:
 
     - name: Copy Dockerfile back to docker-mei repository
       run: |
-        cp {{ env.TEMP_DIR }}/Dockerfile Dockerfile
+        cp ${{ env.TEMP_DIR }}/Dockerfile Dockerfile
     
     - name: Verify changes in Dockerfile
       env:
