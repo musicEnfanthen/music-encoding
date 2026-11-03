@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Invalid (Schematron only; RNG-valid, role=error): @stem.split must not be used directly on <chord> (constraint check_stem.split). -->
+<mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="6.0-dev">
+  <meiHead>
+    <fileDesc>
+      <titleStmt>
+        <title>stem.split directly on a chord</title>
+      </titleStmt>
+      <pubStmt/>
+    </fileDesc>
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef>
+            <staffGrp>
+              <staffDef n="1" lines="5" clef.shape="G" clef.line="2"/>
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <measure>
+              <staff n="1">
+                <layer n="1">
+                  <chord dur="4" stem.split="left">
+                    <note pname="c" oct="4"/>
+                    <note pname="e" oct="4"/>
+                  </chord>
+                </layer>
+              </staff>
+            </measure>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>

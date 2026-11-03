@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Prototype, report phase: evaluate the results stored by run-schema-tests.xml, collect all deviations from the
+  expectations (see there for the layout of tests/) in ${dir.build}/schema-tests/report.txt, print it and fail if
+  there are any. This is the usual entry point:
+
+    ant -f utils/schema-tests/report-schema-tests.xml
+
+  The run phase is called first if its results are missing or older than a schema (dist/schemata/*.rng) or a test
+  instance (tests/**/*.mei); otherwise the stored results are reused, so the report can be re-created without
+  re-validating. Force a new run with -Dschema-tests.rerun=true, or call run-schema-tests.xml directly.
+  Results also count as outdated if they were produced for a different -Dtests.dir or -Dschemata.dir. A deleted
+  instance does not make them stale; use -Dschema-tests.rerun=true then.
+
+  The report phase only reads the files written by the run phase.
+
+  Other options: -Dschemata.dir=/abs/path/to/schemata -Dtests.dir=/abs/path/to/tests
+-->
+<project name="mei-schema-tests-report" default="report-schema-tests" basedir="../.." xmlns:if="ant:if" xmlns:unless="ant:unless">
+    <import file="run-schema-tests.xml"/>
+
+    <!-- Everything below only reads the files written by the run phase. A deviation is appended to ${report.file}
+         and sets the global flag has.report. -->
+
+    <macrodef name="report-line" description="Appends text to the report and raises the flag.">
+        <text name="text" optional="false"/>
+        <sequential>
+            <property name="has.report" value="true"/>
+            <echo file="${report.file}" append="true">${line.separator}@{text}${line.separator}</echo>
+        </sequential>
+    </macrodef>
+
+    <!-- the run phase must have produced one result file per instance -->
+    <macrodef name="report-rng-incomplete">
+        <attribute name="outdir"/>
+        <attribute name="expected"/>
+        <attribute name="title"/>
+        <sequential>
+            <local name="n.out"/>
+            <local name="incomplete"/>
+            <resourcecount property="n.out"><fileset dir="@{outdir}" includes="*.out" erroronmissingdir="false"/></resourcecount>
+            <condition property="incomplete"><not><equals arg1="${n.out}" arg2="@{expected}"/></not></condition>
+            <report-line if:set="incomplete">@{title}: only ${n.out} of @{expected} instances were validated (did run-schema-tests complete?)</report-line>
+        </sequential>
+    </macrodef>
+
+    <!-- the jing output of all rejected instances (non-empty .out files) -->
+    <macrodef name="report-rng-rejected">
+        <attribute name="outdir"/>
+        <attribute name="title"/>
+        <sequential>
+            <local name="found"/>
+            <condition property="found">
+                <resourcecount when="greater" count="0">
+                    <fileset dir="@{outdir}" includes="*.out" erroronmissingdir="false"><size value="0" when="more"/></fileset>
+                </resourcecount>
+            </condition>
+            <report-line if:set="found">@{title}</report-line>
+            <concat if:set="found" destfile="${report.file}" append="true">
+                <fileset dir="@{outdir}" includes="*.out"><size value="0" when="more"/></fileset>
+            </concat>
+        </sequential>
+    </macrodef>
+
+    <!-- the names of all accepted instances (empty .out files) -->
+    <macrodef name="report-rng-accepted">
+        <attribute name="outdir"/>
+        <attribute name="title"/>
+        <sequential>
+            <local name="accepted"/>
+            <pathconvert property="accepted" pathsep="${line.separator}  " setonempty="false">
+                <fileset dir="@{outdir}" includes="*.out" erroronmissingdir="false"><size value="0" when="equal"/></fileset>
+                <chainedmapper>
+                    <flattenmapper/>
+                    <globmapper from="*.out" to="*.mei"/>
+                </chainedmapper>
+            </pathconvert>
+            <report-line if:set="accepted">@{title}${line.separator}  ${accepted}</report-line>
+        </sequential>
+    </macrodef>
+
+    <!-- Every instance leads to exactly one outcome line in the ph-schematron log, so the number of lines with the
+         expected outcome has to equal the number of instances. Otherwise the log lines that explain the deviation
+         go to the report. -->
+    <macrodef name="report-schematron">
+        <attribute name="log"/>
+        <attribute name="expected"/>
+        <attribute name="ok" description="log text of a correct outcome"/>
+        <attribute name="explain" description="regex selecting the log lines that explain a deviation"/>
+        <attribute name="title"/>
+        <sequential>
+            <local name="has.files"/>
+            <local name="has.log"/>
+            <local name="n.ok"/>
+            <local name="deviates"/>
+            <condition property="has.files"><not><equals arg1="@{expected}" arg2="0"/></not></condition>
+            <available file="@{log}" property="has.log"/>
+            <report-line if:set="has.files" unless:set="has.log">@{title}: no Schematron log found (did run-schema-tests complete?)</report-line>
+            <sequential if:set="has.log">
+                <resourcecount property="n.ok">
+                    <tokens>
+                        <concat>
+                            <filterchain><linecontains><contains value="@{ok}"/></linecontains></filterchain>
+                            <file file="@{log}"/>
+                        </concat>
+                    </tokens>
+                </resourcecount>
+                <condition property="deviates"><not><equals arg1="${n.ok}" arg2="@{expected}"/></not></condition>
+                <sequential if:set="deviates">
+                    <report-line>@{title} (${n.ok} of @{expected} as expected):</report-line>
+                    <concat destfile="${report.file}" append="true">
+                        <filterchain><linecontainsregexp><regexp pattern="@{explain}"/></linecontainsregexp></filterchain>
+                        <file file="@{log}"/>
+                    </concat>
+                </sequential>
+            </sequential>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="report-customization" description="Evaluates the stored results of one customization.">
+        <attribute name="name" description="Name of the customization."/>
+        <sequential>
+            <local name="out"/>
+            <local name="has.results"/>
+            <local name="has.tests"/>
+            <local name="n.valid"/>
+            <local name="n.invalid.sch"/>
+            <local name="n.invalid.rng"/>
+            <property name="out" location="${dir.schema-tests}/@{name}"/>
+            <available file="${out}/expected.properties" property="has.results"/>
+            <report-line unless:set="has.results">[@{name}] no results found in ${out} (run-schema-tests has not been executed)</report-line>
+            <sequential if:set="has.results">
+                <property file="${out}/expected.properties"/>
+                <condition property="has.tests">
+                    <not><equals arg1="${n.valid}${n.invalid.sch}${n.invalid.rng}" arg2="000"/></not>
+                </condition>
+                <echo unless:set="has.tests">[@{name}] no tests</echo>
+                <sequential if:set="has.tests">
+                    <echo>[@{name}] ${n.valid} valid, ${n.invalid.sch} invalid-schematron, ${n.invalid.rng} invalid-rng instance(s)</echo>
+
+                    <report-rng-incomplete outdir="${out}/rng-valid" expected="${n.valid}" title="[@{name}] RELAX NG, tests/@{name}/*.mei"/>
+                    <report-rng-rejected outdir="${out}/rng-valid" title="[@{name}] RELAX NG: rejected, but tests/@{name}/*.mei must be valid:"/>
+                    <report-rng-incomplete outdir="${out}/rng-invalid-schematron" expected="${n.invalid.sch}" title="[@{name}] RELAX NG, tests/@{name}/invalid-schematron/*.mei"/>
+                    <report-rng-rejected outdir="${out}/rng-invalid-schematron" title="[@{name}] RELAX NG: rejected, but tests/@{name}/invalid-schematron/*.mei must be RNG-valid:"/>
+                    <report-rng-incomplete outdir="${out}/rng-invalid-rng" expected="${n.invalid.rng}" title="[@{name}] RELAX NG, tests/@{name}/invalid-rng/*.mei"/>
+                    <report-rng-accepted outdir="${out}/rng-invalid-rng" title="[@{name}] RELAX NG: accepted, but tests/@{name}/invalid-rng/*.mei must be rejected:"/>
+
+                    <report-schematron log="${out}/schematron-valid.log" expected="${n.valid}"
+                                       ok="and matches the rules" explain="Schematron error|\[error\]|fullfilled|xception"
+                                       title="[@{name}] Schematron: tests/@{name}/*.mei must be valid"/>
+                    <report-schematron log="${out}/schematron-invalid.log" expected="${n.invalid.sch}"
+                                       ok="(as expected)" explain="No Schematron errors|fullfilled|xception"
+                                       title="[@{name}] Schematron: tests/@{name}/invalid-schematron/*.mei must violate a rule"/>
+                </sequential>
+            </sequential>
+        </sequential>
+    </macrodef>
+
+    <target name="check-run-fresh" description="Sets run.skip if the stored results are newer than all schemata and test instances.">
+        <uptodate property="run.fresh" targetfile="${run.marker}">
+            <srcfiles dir="${schemata.dir}" includes="*.rng" erroronmissingdir="false"/>
+            <srcfiles dir="${tests.dir}" includes="**/*.mei" erroronmissingdir="false"/>
+        </uptodate>
+        <!-- the stored results must also belong to the same tests.dir and schemata.dir -->
+        <condition property="run.skip">
+            <and>
+                <isset property="run.fresh"/>
+                <not><isset property="schema-tests.rerun"/></not>
+                <resourcecontains resource="${run.marker}" substring="tests.dir=${tests.dir}${line.separator}"/>
+                <resourcecontains resource="${run.marker}" substring="schemata.dir=${schemata.dir}${line.separator}"/>
+            </and>
+        </condition>
+        <echo if:set="run.skip">stored results are up to date, not running the checks again (-Dschema-tests.rerun=true forces it)</echo>
+    </target>
+
+    <target name="report-schema-tests" description="Evaluates the results of run-schema-tests (running it first if they are missing or outdated), writes the combined report and fails if any instance deviates from its expectation." depends="check-run-fresh">
+        <antcall target="run-schema-tests" unless:set="run.skip"/>
+        <mkdir dir="${dir.schema-tests}"/>
+        <delete file="${report.file}"/>
+
+        <report-customization name="mei-all"/>
+        <report-customization name="mei-all_anyStart"/>
+        <report-customization name="mei-basic"/>
+        <report-customization name="mei-cmn"/>
+        <report-customization name="mei-mensural"/>
+        <report-customization name="mei-neumes"/>
+
+        <!-- has.report is a global flag set by report-line -->
+        <loadfile srcfile="${report.file}" property="report.text" if:set="has.report"/>
+        <fail if:set="has.report" message="${line.separator}======== schema test report ========${line.separator}${report.text}${line.separator}(also in ${report.file})${line.separator}"/>
+        <echo>all schema tests passed</echo>
+    </target>
+
+    <target name="test-schemata" description="Alias of report-schema-tests." depends="report-schema-tests"/>
+</project>

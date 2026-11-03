@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Prototype, run phase: validate the sample encodings in tests/ against the built RNG schemata and store the raw results.
+  The results are evaluated by report-schema-tests.xml, which is the usual entry point (it calls this phase when needed).
+
+  Per customization, tests/<customization name>/ is organised as follows:
+    *.mei                       must be valid        (RELAX NG and the Schematron embedded in the RNG)
+    invalid-schematron/*.mei    must be RNG-valid, but violate an embedded Schematron rule
+    invalid-rng/*.mei           must violate the RELAX NG grammar
+
+  Two engines are needed because the RNG schemata embed Schematron (<constraintSpec> in the ODD), which a
+  RELAX NG validator does not execute: jing (RELAX NG) and ph-schematron (the engine validate-source uses).
+
+  This phase fails only on infrastructure problems (missing schema, jing errors), never because an instance deviates
+  from its expectation. It writes, per customization, to ${dir.build}/schema-tests/<customization>/:
+      rng-valid/, rng-invalid-schematron/, rng-invalid-rng/   one <instance>.out per instance (jing output, empty = valid)
+      schematron-valid.log, schematron-invalid.log            recorded ph-schematron output
+      expected.properties                                     number of instances per set
+  and, after a complete run, the marker ${dir.build}/schema-tests/run.done. jing is started once per instance to
+  attribute its result to a file.
+
+  Usage (from the repository root, schemata must already be built, e.g. `ant build-customizations`):
+    ant -f utils/schema-tests/run-schema-tests.xml
+    ant -f utils/schema-tests/run-schema-tests.xml -Dschemata.dir=/abs/path/to/schemata -Dtests.dir=/abs/path/to/tests
+-->
+<project name="mei-schema-tests-run" default="run-schema-tests" basedir="../.." xmlns:if="ant:if" xmlns:unless="ant:unless">
+    <import file="../../build.xml"/>
+
+    <property name="tests.dir" location="tests"/>
+    <property name="schemata.dir" location="${dir.dist.schemata}"/>
+    <property name="dir.schema-tests" location="${dir.build}/schema-tests"/>
+    <property name="report.file" location="${dir.schema-tests}/report.txt"/>
+    <property name="run.marker" location="${dir.schema-tests}/run.done"/>
+    <property name="jing.version" value="20241231"/>
+    <property name="jing.jar" location="${dir.lib}/jing/jing-${jing.version}.jar"/>
+
+    <target name="jing-init" description="Downloads jing (RELAX NG validator) into lib/jing if not available.">
+        <available file="${jing.jar}" property="jing-available"/>
+        <mkdir dir="${dir.lib}/jing" unless:set="jing-available"/>
+        <get unless:set="jing-available" src="https://repo1.maven.org/maven2/org/relaxng/jing/${jing.version}/jing-${jing.version}.jar" dest="${jing.jar}"/>
+    </target>
+
+    <!-- ============================== run phase ============================== -->
+
+    <!-- RELAX NG: validates every instance on its own; jing prints validation errors to stdout, so
+         <outdir>/<instance>.out is empty exactly for valid instances. Anything on stderr is an infrastructure error. -->
+    <macrodef name="jing-each">
+        <attribute name="rng"/>
+        <attribute name="dir"/>
+        <attribute name="outdir"/>
+        <sequential>
+            <delete dir="@{outdir}"/>
+            <mkdir dir="@{outdir}"/>
+            <apply executable="java" parallel="false" failonerror="false" skipemptyfilesets="true">
+                <arg value="-jar"/>
+                <arg file="${jing.jar}"/>
+                <arg file="@{rng}"/>
+                <srcfile/>
+                <fileset dir="@{dir}" includes="*.mei" erroronmissingdir="false"/>
+                <redirector>
+                    <outputmapper type="glob" from="*.mei" to="@{outdir}/*.out"/>
+                    <errormapper type="glob" from="*.mei" to="@{outdir}/*.err"/>
+                </redirector>
+            </apply>
+            <fail message="jing reported problems on stderr (see @{outdir}/*.err); this is not a validation result.">
+                <condition>
+                    <resourcecount when="greater" count="0">
+                        <fileset dir="@{outdir}" includes="*.err"><size value="0" when="more"/></fileset>
+                    </resourcecount>
+                </condition>
+            </fail>
+        </sequential>
+    </macrodef>
+
+    <!-- Schematron via ph-schematron, run non-fatally with its output recorded in @{log}. -->
+    <macrodef name="sch-run">
+        <attribute name="sch"/>
+        <attribute name="dir"/>
+        <attribute name="includes"/>
+        <attribute name="expect" description="true: instances must be valid, false: must violate a rule"/>
+        <attribute name="log"/>
+        <sequential>
+            <local name="n.files"/>
+            <local name="has.files"/>
+            <resourcecount property="n.files">
+                <fileset dir="@{dir}" includes="@{includes}" erroronmissingdir="false"/>
+            </resourcecount>
+            <condition property="has.files"><not><equals arg1="${n.files}" arg2="0"/></not></condition>
+            <sequential if:set="has.files">
+                <record name="@{log}" action="start" loglevel="info" append="false"/>
+                <schematron schematronFile="@{sch}" expectSuccess="@{expect}" schematronProcessingEngine="schematron" languageCode="en" failOnError="false" failOnValidationError="false">
+                    <fileset dir="@{dir}" includes="@{includes}"/>
+                </schematron>
+                <record name="@{log}" action="stop"/>
+            </sequential>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="run-customization" description="Runs the RELAX NG and Schematron checks of one customization and stores the raw results.">
+        <attribute name="name" description="Name of the customization, i.e. of the RNG schema (without extension) and of the folder below ${tests.dir}."/>
+        <sequential>
+            <local name="rng"/>
+            <local name="sch"/>
+            <local name="tdir"/>
+            <local name="out"/>
+            <local name="n.valid"/>
+            <local name="n.invalid.sch"/>
+            <local name="n.invalid.rng"/>
+            <local name="has.tests"/>
+            <property name="rng" location="${schemata.dir}/@{name}.rng"/>
+            <property name="sch" location="${dir.schema-tests}/@{name}.sch"/>
+            <property name="tdir" location="${tests.dir}/@{name}"/>
+            <property name="out" location="${dir.schema-tests}/@{name}"/>
+
+            <!-- start from scratch, so that the report phase can never see results of an earlier run -->
+            <delete dir="${out}"/>
+            <mkdir dir="${out}"/>
+
+            <resourcecount property="n.valid"><fileset dir="${tdir}" includes="*.mei" erroronmissingdir="false"/></resourcecount>
+            <resourcecount property="n.invalid.sch"><fileset dir="${tdir}" includes="invalid-schematron/*.mei" erroronmissingdir="false"/></resourcecount>
+            <resourcecount property="n.invalid.rng"><fileset dir="${tdir}" includes="invalid-rng/*.mei" erroronmissingdir="false"/></resourcecount>
+            <echo file="${out}/expected.properties">n.valid=${n.valid}${line.separator}n.invalid.sch=${n.invalid.sch}${line.separator}n.invalid.rng=${n.invalid.rng}${line.separator}</echo>
+            <condition property="has.tests">
+                <not><equals arg1="${n.valid}${n.invalid.sch}${n.invalid.rng}" arg2="000"/></not>
+            </condition>
+
+            <echo unless:set="has.tests">[@{name}] no tests in ${tdir}</echo>
+            <sequential if:set="has.tests">
+                <echo>[@{name}] ${n.valid} valid, ${n.invalid.sch} invalid-schematron, ${n.invalid.rng} invalid-rng instance(s)</echo>
+                <fail message="Schema not found: ${rng} (build it first, e.g. `ant build-customizations`).">
+                    <condition><not><available file="${rng}"/></not></condition>
+                </fail>
+
+                <!-- extract the Schematron embedded in the RNG -->
+                <java classname="net.sf.saxon.Transform" classpathref="mei.classpath" fork="true" failonerror="true">
+                    <arg value="-s:${rng}"/>
+                    <arg value="-xsl:${basedir}/utils/schematron/ExtractSchFromRNG-2.xsl"/>
+                    <arg value="-o:${sch}"/>
+                </java>
+
+                <jing-each rng="${rng}" dir="${tdir}" outdir="${out}/rng-valid"/>
+                <jing-each rng="${rng}" dir="${tdir}/invalid-schematron" outdir="${out}/rng-invalid-schematron"/>
+                <jing-each rng="${rng}" dir="${tdir}/invalid-rng" outdir="${out}/rng-invalid-rng"/>
+                <sch-run sch="${sch}" dir="${tdir}" includes="*.mei" expect="true" log="${out}/schematron-valid.log"/>
+                <sch-run sch="${sch}" dir="${tdir}" includes="invalid-schematron/*.mei" expect="false" log="${out}/schematron-invalid.log"/>
+            </sequential>
+        </sequential>
+    </macrodef>
+
+    <target name="run-schema-tests" description="Runs the instance checks against the built schemata (expects dist/schemata to be built) and stores the raw results; does not evaluate them." depends="init-mei-classpath, jing-init">
+        <taskdef name="schematron" classname="com.helger.schematron.ant.Schematron" classpathref="mei.classpath" loaderref="mei.classpath.loader"/>
+        <mkdir dir="${dir.schema-tests}"/>
+        <!-- the marker only exists after a run that went through completely -->
+        <delete file="${run.marker}"/>
+
+        <run-customization name="mei-all"/>
+        <run-customization name="mei-all_anyStart"/>
+        <run-customization name="mei-basic"/>
+        <run-customization name="mei-cmn"/>
+        <run-customization name="mei-mensural"/>
+        <run-customization name="mei-neumes"/>
+
+        <!-- the marker records which inputs the results belong to -->
+        <echo file="${run.marker}">tests.dir=${tests.dir}${line.separator}schemata.dir=${schemata.dir}${line.separator}</echo>
+    </target>
+</project>
